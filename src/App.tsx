@@ -37,17 +37,22 @@ export default function App() {
     setIsMusicPlaying(true);
   };
 
+  const openInvitation = () => {
+    // ensure AudioPlayer's imperative starter is invoked in the user gesture
+    (window as any).startWeddingAudio?.();
+    // then close intro
+    setIsIntroOpen(false);
+  };
+
   return (
     <div className={`${darkMode ? 'dark bg-neutral-950 text-neutral-100' : 'bg-ivory-50 text-neutral-800'} min-h-screen transition-colors duration-500 font-sans`}>
       
       {/* Floating Petals Canvas Background */}
       <FloatingPetals />
 
-      {/* Background Synthesizer Music Toggle */}
-      {!isIntroOpen && (
-        <AudioPlayer isPlaying={isMusicPlaying} onToggle={setIsMusicPlaying} />
-      )}
-
+      {/* AudioPlayer always mounted so its window starter is available during the "Open" click */}
+      <AudioPlayer isPlaying={isMusicPlaying} onToggle={setIsMusicPlaying} />
+      
       {/* Floating Dark/Light Toggle */}
       {!isIntroOpen && (
         <button
@@ -111,7 +116,7 @@ export default function App() {
 
             <button
               id="btn_open_invitation"
-              onClick={handleOpenInvitation}
+              onClick={openInvitation}
               className="w-full py-4 px-6 rounded-xl bg-gradient-to-r from-yellow-600 to-amber-700 hover:from-yellow-500 hover:to-amber-600 text-white font-sans text-xs uppercase tracking-widest font-bold shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer"
             >
               <Sparkles className="w-4 h-4 animate-spin-slow text-white" />

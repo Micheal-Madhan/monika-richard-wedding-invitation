@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Volume2, VolumeX, Music, Bell } from 'lucide-react';
+import weddingSong from '../assets/music/wedding-song.mp3';
 
 interface AudioPlayerProps {
   isPlaying: boolean;
@@ -21,7 +22,7 @@ export default function AudioPlayer({ isPlaying, onToggle }: AudioPlayerProps) {
   const isPlayingRef = useRef<boolean>(isPlaying);
   const lastUserToggleRef = useRef<boolean>(false);
   
-  const BG_TRACK = '/assets/music/wedding-song.mp3'; // put your file in public/assets/music/
+  const BG_TRACK = weddingSong;
   // YouTube stream option (no download): video id for the URL you provided
   const YT_VIDEO_ID = 'I7ytxuPnkZ0';
   const ytPlayerRef = useRef<any>(null);
@@ -338,6 +339,39 @@ export default function AudioPlayer({ isPlaying, onToggle }: AudioPlayerProps) {
       }
     };
   }, [isPlaying]);
+
+  // Try autoplay on mount; if blocked, wait for first user gesture then start
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      try {
+        await startBackgroundAudio();
+        if (mounted && !isPlaying) onToggle(true);
+        console.log('Autoplay attempt succeeded');
+      } catch (err: any) {
+        const msg = err?.message || '';
+        if (err?.name === 'NotAllowedError' || /not.*allowed|user gesture/i.test(msg)) {
+          console.log('Autoplay blocked — will start on first user gesture');
+          const onFirstGesture = async () => {
+            try {
+              await startBackgroundAudio();
+              if (!isPlaying) onToggle(true);
+            } catch (e) { /* ignore */ }
+          };
+          document.addEventListener('click', onFirstGesture, { once: true });
+          document.addEventListener('keydown', onFirstGesture, { once: true });
+        } else {
+          console.error('Autoplay error', err);
+        }
+      }
+    })();
+    return () => { mounted = false; };
+  }, []); 
+
+  // Expose an imperative starter so other UI (e.g. "Open invitation" button) can
+  // trigger the audio to start, e.g. after a user gesture.
+  // @ts-ignore
+  window._startAudio = startBackgroundAudio;
 
   const toggleSound = () => {
     // mark that this toggle came from the user to avoid duplicate work in useEffect
