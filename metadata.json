@@ -1,0 +1,6 @@
+{
+  "name": "Monika & Richard Wedding Invitation",
+  "description": "A luxury, mobile-first, animated wedding invitation website for the wedding of S. Monika and B. Richard. Features couple stories, church-themed layouts, RSVP form, and a Guest Wishes Wall.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

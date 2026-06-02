@@ -1,0 +1,53 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // 1. Global Catch-all safety net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helper functions
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    // Validation for RSVPs
+    function isValidRSVP(data) {
+      return data.keys().hasAll(['name', 'phone', 'guestsCount', 'attendingEngagement', 'attendingWedding', 'message', 'createdAt'])
+        && data.keys().size() == 7
+        && data.name is string && data.name.size() > 0 && data.name.size() <= 100
+        && data.phone is string && data.phone.size() > 0 && data.phone.size() <= 30
+        && data.guestsCount is int && data.guestsCount >= 0 && data.guestsCount <= 50
+        && data.attendingEngagement is bool
+        && data.attendingWedding is bool
+        && data.message is string && data.message.size() <= 1000
+        && data.createdAt == request.time;
+    }
+
+    // Validation for Wishes
+    function isValidWish(data) {
+      return data.keys().hasAll(['name', 'message', 'createdAt'])
+        && data.keys().size() == 3
+        && data.name is string && data.name.size() > 0 && data.name.size() <= 100
+        && data.message is string && data.message.size() > 0 && data.message.size() <= 1000
+        && data.createdAt == request.time;
+    }
+
+    // 2. RSVPs Collection: Pure write-only to isolate guest PII (phone, names, count)
+    match /rsvps/{rsvpId} {
+      allow create: if isValidId(rsvpId) && isValidRSVP(incoming());
+      allow read, update, delete: if false;
+    }
+
+    // 3. Wishes Collection: Readers can list or get blessings, writers can only create, no updates/deletes permitted to prevent spoofing
+    match /wishes/{wishId} {
+      allow list, get: if true;
+      allow create: if isValidId(wishId) && isValidWish(incoming());
+      allow update, delete: if false;
+    }
+  }
+}

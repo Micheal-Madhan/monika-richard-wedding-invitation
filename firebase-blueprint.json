@@ -1,0 +1,72 @@
+{
+  "entities": {
+    "rsvp": {
+      "title": "RSVP Response",
+      "description": "Details about a guest's RSVP response for the engagement and wedding",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Full name of the guest"
+        },
+        "phone": {
+          "type": "string",
+          "description": "Phone number of the guest"
+        },
+        "guestsCount": {
+          "type": "integer",
+          "description": "Number of guests attending"
+        },
+        "attendingEngagement": {
+          "type": "boolean",
+          "description": "Whether attending the engagement"
+        },
+        "attendingWedding": {
+          "type": "boolean",
+          "description": "Whether attending the wedding"
+        },
+        "message": {
+          "type": "string",
+          "description": "Optional warm message or blessing"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Timestamp when RSVP was submitted"
+        }
+      },
+      "required": ["name", "phone", "guestsCount", "attendingEngagement", "attendingWedding", "createdAt"]
+    },
+    "wish": {
+      "title": "Guest Wish",
+      "description": "A blessing or wish left by a guest on the Wishes Wall",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Name of the guest leaving the wish"
+        },
+        "message": {
+          "type": "string",
+          "description": "The blesssing or message"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Timestamp when wish was written"
+        }
+      },
+      "required": ["name", "message", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/rsvps/{rsvpId}": {
+      "schema": "rsvp",
+      "description": "Collection of RSVPs submitted by guests"
+    },
+    "/wishes/{wishId}": {
+      "schema": "wish",
+      "description": "Wishes and blessings left on the Wishes Wall"
+    }
+  }
+}
